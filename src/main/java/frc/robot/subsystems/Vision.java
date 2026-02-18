@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -11,6 +12,8 @@ import frc.robot.LimelightHelpers.RawFiducial;
 
 public class Vision extends SubsystemBase {
 public double[] measuments = {0,0,0,0,0,0};
+public PIDController rotPID = new PIDController(0.2, 0, 0);
+public int tagID;
 public RawFiducial[] fiducials;
   public Vision() {
   }
@@ -24,57 +27,37 @@ public RawFiducial[] fiducials;
       // }
       if (LimelightHelpers.getTV("")){
         updateMeasurments();
-        System.out.println("x: " + measuments[2]);
-        System.out.println("y: " + measuments[0]);
-        System.out.println("rot: " + measuments[4]);
+        // System.out.println("x: " + measuments[2]);
+        // System.out.println("y: " + measuments[0]);
+        // System.out.println("rot: " + measuments[4]);
+        System.out.println("distance: " + getDistance());
       }
 
     });
   }
 
-  public double GetOutputX(){
-    updateMeasurments();
-    double xValue = measuments[2];
-    double output = 0;
-        if(LimelightHelpers.getTV("")){
-      if(xValue > -0.85){
-        output = -1;
-      }
-      if(output < -0.85){
-        output = 1;
-      }
+  public double getRotateOutput(){
+    double output = rotPID.calculate(LimelightHelpers.getTX(""), 0);
+    if (output > 1){
+      output = 1;
+    }
+    if (output < -1){
+      output = -1;
     }
     return output;
   }
 
-  public double GetOutputY(){
-    updateMeasurments();
-    double yValue = measuments[0];
-    double output = 0;
-    if(LimelightHelpers.getTV("")){
-      if(yValue > 0){
-        output = -1;
+  public double getDistance(){
+    double distance = 0;
+    if (LimelightHelpers.getTV("")){
+      RawFiducial[] fiducials = LimelightHelpers.getRawFiducials("");
+      for (RawFiducial fiducial : fiducials) {
+        tagID = fiducial.id;
+        distance = fiducial.distToCamera;
       }
-      if(output < 0){
-        output = 1;
-      }
+      return distance;
     }
-    return output;
-  }
-
-  public double GetOutputRot(){
-    updateMeasurments();
-    double rotValue = measuments[4];
-    double output = 0;
-    if(LimelightHelpers.getTV("")){
-      if(rotValue > 0){
-        output = -1;
-      }
-      if(output < 0){
-        output = 1;
-      }
-    }
-    return output;
+    return 0;
   }
 
   public void updateMeasurments(){
