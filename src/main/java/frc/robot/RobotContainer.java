@@ -54,7 +54,17 @@ public class RobotContainer {
             )
         );
 
+        joystick.b().whileTrue(
+            drivetrain.applyRequest(()->
+            drive
+            .withVelocityX(vision.GetOutputY())
+            .withVelocityY(vision.GetOutputX())
+            //.withRotationalRate(-vision.GetOutputRot())
+            )
+        );
+
         joystick.a().whileTrue(vision.print());
+
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -64,9 +74,9 @@ public class RobotContainer {
         );
 
         joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+        // joystick.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        // ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
